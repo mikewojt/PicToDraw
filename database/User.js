@@ -1,4 +1,4 @@
-export class User {
+class User {
     constructor(username, password){
         this._username = username;
         this._password = password;
@@ -10,4 +10,6 @@ export class User {
             return this._password;
         }
 }
+
+module.exports = User
 
