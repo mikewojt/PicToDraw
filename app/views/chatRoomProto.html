@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <title>Socket.IO chat</title>
+    <!--style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+    </style-->
+    <style>
+        * { margin: 0; padding: 0; }
+        html { height: 100%; }
+        body { width: 100%; height: 100%; border: 1px solid purple;}
+        .container-fluid {height: 100%;}
+        .row { height: 100%;}
+        #chatroom1 { position: relative; height: 100%; min-width: 100%;}
+        #chatInput1 {width: 100%;}
+        #chatText {position: absolute; bottom: 0;}
+        input {width: 100%; }
+        #messages1 { list-style-type: none; margin: 0; padding: 0; }
+        #messages1 li { padding: 5px 10px; }
+        #messages1 li:nth-child(odd) { background: #eee; }
+
+        #chatText2 {position: absolute; bottom: 0;}
+        #chatroom2 { position: relative; height: 100%; min-width: 100%;}
+        #chatInput2 {width: 100%;}
+        #messages2 { list-style-type: none; margin: 0; padding: 0; }
+        #messages2 li { padding: 5px 10px; }
+        #messages2 li:nth-child(odd) { background: #eee; }
+
+        /* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #ffffff; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+    </style>
+  </head>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    $(function () {
+        var socket = io.connect();
+        var originalRoom = "room_0";
+
+        socket.on('connect', function(){
+            socket.emit('room', originalRoom);
+        });
+
+        $('#chatinput1').submit(function(e){
+            e.preventDefault(); // prevents page reloading
+            const arr = [$('#username1').val(), $('#m1').val()];
+            socket.emit('multiroom_chat', {room_id: originalRoom, message: arr});
+            $('#m1').val('');
+            return false;
+        });
+        socket.on('multiroom_message', function(msg){
+            console.log("this happened");
+            $('#messages1').append('<li><b>' + msg[0] + '</b>: ' + msg[1] + "</li>");
+            $('#messageWindow').scrollTop($('#messageWindow')[0].scrollHeight);
+        });
+
+        var socket2 = io.connect();
+        var room = "room_1";
+        socket2.on('connect', function(){
+            socket.emit('room', room);
+        });
+
+        $('#chatinput2').submit(function(e){
+            e.preventDefault(); // prevents page reloading
+            const chatroom = 'room_1'
+            const arr = [$('#username2').val(), $('#m2').val()];
+            socket2.emit('multiroom_chat', {room_id: room, message: arr});
+            $('#m2').val('');
+            return false;
+        });
+        socket2.on('multiroom_message', function(msg){
+            $('#messages2').append('<li><b>' + msg[0] + '</b>: ' + msg[1] + "</li>");
+            $('#messageWindow2').scrollTop($('#messageWindow2')[0].scrollHeight);
+        });
+    });
+  </script>
+  <body>
+    <div class="container-fluid" style="border: 1px solid blue;">
+        <div class="row" style="border: 1px solid green;">
+            <div class="col-6" style="border: 1px solid red;">
+                <div id="chatroom1" class="col-6" style="border:1px solid chocolate;">
+                    <div id="messageWindow" style="overflow: scroll; width: 90%; min-height: 80%; max-height: 80%; position: absolute;">
+                        <ul id="messages1"></ul>
+                    </div>
+                    <div id="chatText">
+                    <form id="chatinput1" action="">
+                        <input id="username1" autocomplete="off" value="anon"/> 
+                        <input id="m1" autocomplete="off" /><button>Send</button>
+                    </form>
+                </div>
+                </div>
+            </div>
+
+
+            <div class="col-6" style="border: 1px solid red;">
+                
+                <div id="chatroom2" class="col-6" style="border:1px solid chocolate;">
+                    <div id="messageWindow2" style="overflow: scroll; width: 90%; min-height: 80%; max-height: 80%;">
+                        <ul id="messages2"></ul>
+                    </div>
+                    <div id="chatText2">
+                        <form id="chatinput2" action="">
+                            <input id="username2" autocomplete="off" value="anon2"/> 
+                            <input id="m2" autocomplete="off" /><button>Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </body>
+</html>
