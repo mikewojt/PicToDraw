@@ -10,24 +10,16 @@ const db = mysql.createConnection({
     password : 'csrocks55',
     database : 'pictodraw'
   });
+const UserDao = require('../database/UserDAO')
+const User = require('../database/User')
 
-db.connect((err) => {
-    if(err){
-        throw err;
-    }
-    console.log('MySql connected')
-})
 function onLanding(request, response){
+    userDao = new UserDao()
+    console.log(userDao.select_by_username('mwojtyna').username)
     response.sendFile('home.html', { root: path.join(__dirname, '../templates') });
 }
 
-app.get('/selectuser', (req, res) => {
-    let sql = 'SELECT * FROM users';
-    let query = db.query(sql, (err, result)=> {
-        if(err) throw err;
-        res.send(result)
-    });
-});
+
 
 //app.get('/', onLanding);
 

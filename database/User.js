@@ -10,3 +10,6 @@ class User {
             return this._password;
         }
 }
+
+module.exports = User
+
