@@ -22,6 +22,9 @@ function onLanding(request, response){
 
 
 //app.get('/', onLanding);
+app.get('/canvasProto/:roomId', function(req, res){
+    res.sendFile(__dirname + '/views/canvas_proto.html');
+});
 
 app.get('/roomsProto/:roomId', function(req, res){
     res.sendFile(__dirname + '/views/roomsProto.html');
