@@ -37,10 +37,26 @@ io.on('connection', function(socket){
         console.log('joining room ' + room)
         socket.join(room);
     });
+
     socket.on('multiroom_chat', function(args){
         console.log('chat from room ' + args.room_id);
         io.to(args.room_id).emit('multiroom_message', args.message);
-    })
+    });
+
+    //drawing
+    socket.on('drawing_start', function(args){
+        console.log('user_drawing_start' + args);
+        io.to(args.roomId).emit('user_drawing_start', args);
+    });
+    socket.on('mouse_move', function(args){
+        console.log('mouse_move' + args);
+        io.to(args.roomId).emit('user_mouse_move', args);
+    });
+    socket.on('drawing_end', function(args){
+        console.log('drawing_end' + args);
+        io.to(args).emit('user_drawing_end');
+    });
+
     socket.on('disconnect', function(){
         console.log('user disconnected')
     });

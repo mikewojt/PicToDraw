@@ -11,10 +11,15 @@
             <canvas id="myCanvas" width="578" height="200" style="border: 1px solid red"></canvas>
     </body> 
     <script>
+        const room_id = window.location.pathname.split('/')[2];
         var isDrawing;
         var canvas = document.getElementById('myCanvas');
         var context = canvas.getContext('2d');
 
+        var socket = io();
+        socket.on('connect', function(){
+            socket.emit('room', room_id);
+        });
         //config options
         var line_width = 10;
         var line_color = "blue";
@@ -23,21 +28,43 @@
         context.lineJoin = context.lineCap = "round";
         context.strokeStyle = line_color;
         
-        canvas.onmousedown = function(e){
+        socket.on('user_drawing_start', function(coords){
+            console.log('user_drawing_start');
             isDrawing = true;
             context.lineWidth = line_width;
-            context.moveTo(e.clientX, e.clientY);
+            context.moveTo(coords.x, coords.y);
+        });
+
+        socket.on('user_mouse_move', function(coords){
+            console.log('user_mouse_move');
+                context.lineTo(coords.x, coords.y);
+                context.stroke();
+        });
+
+        socket.on('user_drawing_end', function(){
+            console.log('user_drawing_end');
+            isDrawing = false;
+        });
+
+
+        canvas.onmousedown = function(e){
+            //isDrawing = true;
+            //context.lineWidth = line_width;
+            //context.moveTo(e.clientX, e.clientY);
+            socket.emit('drawing_start', {roomId: room_id, x: e.clientX, y: e.clientY});
         };
 
         canvas.onmousemove = function(e){
             if (isDrawing) {
-                context.lineTo(e.clientX, e.clientY);
-                context.stroke()
+                socket.emit('mouse_move', {roomId: room_id, x: e.clientX, y: e.clientY});
+                //context.lineTo(e.clientX, e.clientY);
+                //context.stroke();
             }
         };
 
         canvas.onmouseup = function() {
-            isDrawing = false;
+            socket.emit('drawing_end', room_id);
+            //isDrawing = false;
         }
         </script>
 </html>
