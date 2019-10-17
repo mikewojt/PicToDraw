@@ -23,25 +23,19 @@ function onLanding(request, response){
 
 //app.get('/', onLanding);
 
-app.get('/chatProto', function(req, res){
-    res.sendFile(__dirname + '/views/index.html');
-});
-
-app.get('/chatRoomProto', function(req, res){
-    res.sendFile(__dirname + '/views/chatRoomProto.html');
+app.get('/roomsProto/:roomId', function(req, res){
+    res.sendFile(__dirname + '/views/roomsProto.html');
 });
 
 io.on('connection', function(socket){
     console.log('a user connected');
-    socket.on('chat message', function(msg){
-        io.emit('chat message', msg);
-    });
+
     socket.on('room', function(room){
         console.log('joining room ' + room)
         socket.join(room);
     });
     socket.on('multiroom_chat', function(args){
-        console.log('chat from room' + args.room_id);
+        console.log('chat from room ' + args.room_id);
         io.to(args.room_id).emit('multiroom_message', args.message);
     })
     socket.on('disconnect', function(){
